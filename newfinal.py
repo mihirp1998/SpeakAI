@@ -176,7 +176,7 @@ def dense():
 	model.add(Dense(10))
 	model.add(Dense(7))
 	model.add(Activation('softmax'))
-	opt = keras.optimizers.rmsprop()
+	opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
 	model.compile(loss="binary_crossentropy", optimizer=opt,metrics=["accuracy"])
 	#model.fit(zxtrain,test,epochs=50, verbose=0 )
 	#model.summary()
@@ -207,7 +207,7 @@ def model_test(x_test, y_test, x_train, y_train, model):
 	# load weights into new model
 	loaded_model.load_weights("../SpeakAI_data/ffModel22nd.h5")
 	print("Loaded model from disk")
-	opt = keras.optimizers.rmsprop()
+	opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
  	loaded_model.compile(loss="binary_crossentropy", optimizer=opt,metrics=["accuracy"])
 	acc = model.evaluate(x_test, y_test)
 	predictedVal = model.predict(x_test)
@@ -261,10 +261,16 @@ def preload():
 	svm_y_test = [np.where(r==1)[0][0] for r in svm_y_test]
 	svm_y_test = np_utils.to_categorical(svm_y_test,7)
 	svm_y_train = np_utils.to_categorical(svm_y_train,7)
-
+	# train scaler
+	# scaler = StandardScaler()
 	# scaler.fit(svm_x_train)
 	# pickle.dump(scaler,open('scaler.p','wb'))
-	print('hi')
+
+	# retrieve scaler
+	scaler  = pickle.load(open('scaler.p','rb'))
+	# print(scaler.mean_,scaler.var_)
+	svm_x_train = scaler.transform(svm_x_train)
+	svm_x_test = scaler.transform(svm_x_test)
 
 preload()
 
