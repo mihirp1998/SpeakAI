@@ -1,1 +1,1 @@
-this is speaker recognition system for fractal
+asthis is speaker recognition system for fractal
