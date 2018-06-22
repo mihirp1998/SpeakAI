@@ -65,7 +65,7 @@ def model():
 				  optimizer=opt,
 				  metrics=['accuracy'])
 
-	model.load_weights('my_model_weights.h5')
+	model.load_weights('../SpeakAI_data/my_model_weights.h5')
 
 	return model
 # rootdir = path to training data dir
@@ -170,7 +170,7 @@ def svm_train(svm_x_train,svm_y_train):
 	global modelf
 	print(svm_x_train.shape,svm_y_train.shape)
 	modelf.fit(svm_x_train, svm_y_train, epochs=150,batch_size=10)
-	modelf.save_weight("model.h5")
+	modelf.save_weight("../SpeakAI_data/model.h5")
 	# pickle.dump(clf,open('clf.p','wb'))
 
 

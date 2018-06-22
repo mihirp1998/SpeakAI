@@ -23,9 +23,11 @@ from keras.utils import np_utils
 from keras.models import Model
 from sklearn import svm
 from sklearn.metrics import accuracy_score
-
+from keras.models import model_from_json
 import pickle
 import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
+
 
 def model():
 	tf.reset_default_graph()
@@ -63,7 +65,7 @@ def model():
 				  optimizer=opt,
 				  metrics=['accuracy'])
 
-	model.load_weights('my_model_weights.h5')
+	model.load_weights('../SpeakAI_data/my_model_weights.h5')
 
 	return model
 # rootdir = path to training data dir
@@ -164,11 +166,11 @@ def dense():
 	model = Sequential()
 	# x_train=x_train.reshape((1000,784))
 	model.add(Dense(30,input_dim=399168,activation='relu',  ))
-	model.add(Dropout(0.25))
-	model.add(Dense(20,activation='relu'))
+	# model.add(Dropout(0.25))
+	model.add(Dense(20,activation='elu'))
 	model.add(Dense(15))
 	model.add(Activation('relu'))
-	model.add(Dropout(0.4))
+	# model.add(Dropout(0.4))
 	model.add(Dense(15))
 	model.add(Activation('relu'))
 	model.add(Dense(10))
@@ -181,21 +183,15 @@ def dense():
 	
 	return model
 
-def svm_train(x_train,y_train, model):
-	
-	y_train = np_utils.to_categorical(y_train,7)
-	#print(y_train.shape)
+def model_train(x_train,y_train, model):
 	model.fit(x_train,y_train,epochs=60,batch_size=10,verbose=1)
-	# x_train=x_train.reshape((500,784))
-	
-	acc = model.evaluate(x_train, y_train)
-	print(acc)
+	savedata(model)
 
 
 def extractData(svm_x_train,svm_y_train):
 	global clf
 	svm_x_train = np.array(svm_x_train)
-	clf = svm.SVC(kernel='rbf', class_weight='balanced',probability=True)
+	# clf = svm.SVC(kernel='rbf', class_weight='balanced',probability=True)
 	dataset_size = len(svm_x_train)
 	svm_x_train = np.array(svm_x_train).reshape(dataset_size,-1)
 	svm_y_train = np.array(svm_y_train)
@@ -203,28 +199,35 @@ def extractData(svm_x_train,svm_y_train):
 	return svm_x_train,svm_y_train
 
 
-def svm_test(x_test, y_test, x_train, y_train, model):
-	y_train = np_utils.to_categorical(y_train,7)
- 	model.fit(x_train,y_train,epochs=60,batch_size=10,verbose=1)
-  	y_test = np_utils.to_categorical(y_test,7)
+def model_test(x_test, y_test, x_train, y_train, model):
+	json_file = open('../SpeakAI_data/ffModel22nd.json', 'r')
+	loaded_model_json = json_file.read()
+	json_file.close()
+	loaded_model = model_from_json(loaded_model_json)
+	# load weights into new model
+	loaded_model.load_weights("../SpeakAI_data/ffModel22nd.h5")
+	print("Loaded model from disk")
+	opt = keras.optimizers.rmsprop()
+ 	loaded_model.compile(loss="binary_crossentropy", optimizer=opt,metrics=["accuracy"])
 	acc = model.evaluate(x_test, y_test)
- 	print(acc)
+	predictedVal = model.predict(x_test)
+	print(np.argmax(y_test,1),np.argmax(predictedVal,1))
+ 	print("test accuracy",acc)
  	acc1 = model.evaluate(x_train,y_train)
- 	print(acc1)
- 	savedata(model)
+ 	print("train accuracy",acc1)
+
 
 # 	print(accuracy_score(svm_y_test, predicted))
 
 def savedata(model): 
 	model_json = model.to_json()
-	with open("model.json", "w") as json_file:
+	with open("../SpeakAI_data/ffModel22nd.json", "w") as json_file:
     		json_file.write(model_json)
-    	model.save_weights("model123.h5")
+    	model.save_weights("../SpeakAI_data/ffModel22nd.h5")
     	print("Save Model To Disk")
 
 
 def preload():
-	
 	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
 	mod = model()
 	rootdir = 'data/train/'
@@ -256,6 +259,11 @@ def preload():
 	dataset_size = len(svm_x_test)
 	svm_x_test = np.array(svm_x_test).reshape(dataset_size,-1)
 	svm_y_test = [np.where(r==1)[0][0] for r in svm_y_test]
+	svm_y_test = np_utils.to_categorical(svm_y_test,7)
+	svm_y_train = np_utils.to_categorical(svm_y_train,7)
+
+	# scaler.fit(svm_x_train)
+	# pickle.dump(scaler,open('scaler.p','wb'))
 	print('hi')
 
 preload()
@@ -263,11 +271,11 @@ preload()
 def main(testbool):
 	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
 	if testbool:
-		svm_test(svm_x_test,svm_y_test, svm_x_train,svm_y_train, dense())
+		model_test(svm_x_test,svm_y_test, svm_x_train,svm_y_train, dense())
 		
 	else:	
 		#print(svm_y_train.shape)
-		svm_train(svm_x_train,svm_y_train, dense())
+		model_train(svm_x_train,svm_y_train, dense())
 	
 if __name__ == '__main__':
 	main()
