@@ -1,0 +1,2 @@
+# SpeakAI
+Speaker Verification System
