@@ -27,7 +27,7 @@ from keras.models import model_from_json
 import pickle
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
-
+from keras.callbacks import ModelCheckpoint
 
 def model():
 	tf.reset_default_graph()
@@ -64,8 +64,7 @@ def model():
 	model.compile(loss='categorical_crossentropy',
 				  optimizer=opt,
 				  metrics=['accuracy'])
-
-	model.load_weights('../SpeakAI_data/my_model_weights.h5')
+	model.load_weights('../data/Mihir/SpeakAI_data/my_model_weights.h5')
 
 	return model
 # rootdir = path to training data dir
@@ -166,25 +165,26 @@ def dense():
 	model = Sequential()
 	# x_train=x_train.reshape((1000,784))
 	model.add(Dense(30,input_dim=399168,activation='relu',  ))
-	# model.add(Dropout(0.25))
+	model.add(Dropout(0.25))
 	model.add(Dense(20,activation='elu'))
 	model.add(Dense(15))
-	model.add(Activation('relu'))
-	# model.add(Dropout(0.4))
-	model.add(Dense(15))
-	model.add(Activation('relu'))
+	model.add(Activation('elu'))
+	model.add(Dropout(0.3))
 	model.add(Dense(10))
 	model.add(Dense(7))
 	model.add(Activation('softmax'))
-	opt = keras.optimizers.rmsprop()
-	model.compile(loss="binary_crossentropy", optimizer=opt,metrics=["accuracy"])
+	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
+	model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])
 	#model.fit(zxtrain,test,epochs=50, verbose=0 )
 	#model.summary()
 	
 	return model
 
-def model_train(x_train,y_train, model):
-	model.fit(x_train,y_train,epochs=60,batch_size=10,verbose=1)
+
+def model_train(x_train,y_train,x_test, y_test, model):
+	checkpoint = ModelCheckpoint("../data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=30, monitor='val_acc')
+	callbacks_list = [checkpoint]
+	model.fit(x_train,y_train,epochs=1000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
 	savedata(model)
 
 
@@ -199,21 +199,21 @@ def extractData(svm_x_train,svm_y_train):
 	return svm_x_train,svm_y_train
 
 
-def model_test(x_test, y_test, x_train, y_train, model):
-	json_file = open('../SpeakAI_data/ffModel22nd.json', 'r')
+def model_test(x_test, y_test, x_train, y_train):
+	json_file = open('../data/Mihir/SpeakAI_data/ffModel22nd.json', 'r')
 	loaded_model_json = json_file.read()
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
-	loaded_model.load_weights("../SpeakAI_data/ffModel22nd.h5")
+	loaded_model.load_weights("../data/Mihir/SpeakAI_data/models/ff-100-4.86.hdf5")
 	print("Loaded model from disk")
-	opt = keras.optimizers.rmsprop()
- 	loaded_model.compile(loss="binary_crossentropy", optimizer=opt,metrics=["accuracy"])
-	acc = model.evaluate(x_test, y_test)
-	predictedVal = model.predict(x_test)
+	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
+ 	loaded_model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])
+	acc = loaded_model.evaluate(x_test, y_test)
+	predictedVal = loaded_model.predict(x_test)
 	print(np.argmax(y_test,1),np.argmax(predictedVal,1))
  	print("test accuracy",acc)
- 	acc1 = model.evaluate(x_train,y_train)
+ 	acc1 =loaded_model.evaluate(x_train,y_train)
  	print("train accuracy",acc1)
 
 
@@ -221,9 +221,9 @@ def model_test(x_test, y_test, x_train, y_train, model):
 
 def savedata(model): 
 	model_json = model.to_json()
-	with open("../SpeakAI_data/ffModel22nd.json", "w") as json_file:
+	with open("../data/Mihir/SpeakAI_data/ffModel22nd.json", "w") as json_file:
     		json_file.write(model_json)
-    	model.save_weights("../SpeakAI_data/ffModel22nd.h5")
+    	model.save_weights("../data/Mihir/SpeakAI_data/ffModel22nd.h5")
     	print("Save Model To Disk")
 
 
@@ -261,21 +261,27 @@ def preload():
 	svm_y_test = [np.where(r==1)[0][0] for r in svm_y_test]
 	svm_y_test = np_utils.to_categorical(svm_y_test,7)
 	svm_y_train = np_utils.to_categorical(svm_y_train,7)
-
+	# train scaler
+	# scaler = StandardScaler()
 	# scaler.fit(svm_x_train)
 	# pickle.dump(scaler,open('scaler.p','wb'))
-	print('hi')
+
+	# retrieve scaler
+	scaler  = pickle.load(open('scaler.p','rb'))
+	# print(scaler.mean_,scaler.var_)
+	svm_x_train = scaler.transform(svm_x_train)
+	svm_x_test = scaler.transform(svm_x_test)
 
 preload()
 
 def main(testbool):
 	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
 	if testbool:
-		model_test(svm_x_test,svm_y_test, svm_x_train,svm_y_train, dense())
+		model_test(svm_x_test,svm_y_test, svm_x_train,svm_y_train)
 		
 	else:	
 		#print(svm_y_train.shape)
-		model_train(svm_x_train,svm_y_train, dense())
+		model_train(svm_x_train,svm_y_train,svm_x_test,svm_y_test ,dense())
 	
 if __name__ == '__main__':
 	main()
