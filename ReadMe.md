@@ -1,1 +1,1 @@
-this is speaker recognition system for fractal
+This is about to be a next level Speaker Recognition System  
