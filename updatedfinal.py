@@ -31,7 +31,10 @@ from keras.callbacks import ModelCheckpoint
 from keras import regularizers
 from sklearn.utils import shuffle
 
-filePath = '/data/Mihir'
+# filePath = '/data/Mihir'
+filePath = '..'
+
+
 def model():
 	global filePath
 	tf.reset_default_graph()
@@ -168,6 +171,8 @@ def dense():
 
 
 def model_train(x_train,y_train,x_test, y_test, model):
+	global filePath
+	model.load_weights(filePath + "/SpeakAI_data/models/ff-10000-81.23.hdf5")
 	checkpoint = ModelCheckpoint("ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=2500, monitor='val_acc')
 	callbacks_list = [checkpoint]
 	model.fit(x_train,y_train,epochs=10001,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
@@ -274,11 +279,11 @@ def dataPreload():
 	svm_x_test = pickle.load(open(filePath + '/SpeakAI_data/x_test.p','rb'))
 	svm_y_test = pickle.load(open(filePath + '/SpeakAI_data/y_test.p','rb'))
 	return svm_x_train,svm_y_train,svm_y_test,svm_y_test
-# dataPreload()
-preload()
+dataPreload()
+# preload()
 
 def main(testbool):
-	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
+	global svm_x_train,svm_y_train,svm_x_test,svm_y_test
 	if testbool:
 		model_test(svm_x_test,svm_y_test, svm_x_train,svm_y_train)
 		
