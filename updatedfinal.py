@@ -31,7 +31,14 @@ from keras.callbacks import ModelCheckpoint
 from keras import regularizers
 from sklearn.utils import shuffle
 
+<<<<<<< HEAD
 filePath = '/data/Mihir'
+=======
+# filePath = '/data/Mihir'
+filePath = '..'
+
+
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
 def model():
 	global filePath
 	tf.reset_default_graph()
@@ -155,7 +162,11 @@ def dense():
 	# x_train=x_train.reshape((1000,784))
 	model.add(Dense(100,input_dim=399168,activation='elu' ,kernel_regularizer=regularizers.l2(0.01),
                 activity_regularizer=regularizers.l1(0.01)))
+<<<<<<< HEAD
 	# model.add(Dropout(0.2))
+=======
+	model.add(Dropout(0.2))
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
 	model.add(Dense(50,activation="tanh"))
 	model.add(Dense(4))
 	model.add(Activation('softmax'))
@@ -169,10 +180,17 @@ def dense():
 
 def model_train(x_train,y_train,x_test, y_test, model):
 	global filePath
+<<<<<<< HEAD
 	model.load_weights(filePath + "/SpeakAI_data/models/ff-5000-27.43.hdf5")
 	checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=10000, monitor='val_acc')
 	callbacks_list = [checkpoint]
 	model.fit(x_train,y_train,epochs=100001,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+=======
+	model.load_weights(filePath + "/SpeakAI_data/models/ff-10000-81.23.hdf5")
+	checkpoint = ModelCheckpoint("ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=2500, monitor='val_acc')
+	callbacks_list = [checkpoint]
+	model.fit(x_train,y_train,epochs=10001,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
 	savedata(model)
 
 
@@ -280,14 +298,22 @@ dataPreload()
 # preload()
 
 def main(testbool):
+<<<<<<< HEAD
 	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
+=======
+	global svm_x_train,svm_y_train,svm_x_test,svm_y_test
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
 	if testbool:
 		model_test(svm_x_test,svm_y_test, svm_x_train,svm_y_train)
 		
 	else:	
 		#print(svm_y_train.shape)
+<<<<<<< HEAD
 		model = dense()
 		model_train(svm_x_train,svm_y_train,svm_x_test,svm_y_test ,model)
+=======
+		model_train(svm_x_train,svm_y_train,svm_x_test,svm_y_test ,dense())
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
 	
 if __name__ == '__main__':
 	main()
