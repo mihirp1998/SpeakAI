@@ -56,16 +56,23 @@ class Histories(keras.callbacks.Callback):
 			filepath = self.filepath.format(epoch=epoch + 1, **logs)
 			if self.save_best_only:
 				current = logs.get('val_categorical_accuracy')
+<<<<<<< HEAD
 				# print('this is current',current,logs)
+=======
+				print('this is current',current,logs)
+>>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 				if current is None:
 					warnings.warn('Can save best model only with %s available, '
 								  'skipping.' % (self.monitor), RuntimeWarning)
 				else:
 					if self.monitor_op(current, self.best):
+<<<<<<< HEAD
 						open('trainDetails.txt','wb').write('\nEpoch %05d: %s improved from %0.5f to %0.5f,'
 								  ' saving model to %s'
 								  % (epoch + 1, self.monitor, self.best,
 									 current, filepath))
+=======
+>>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 						if self.verbose > 0:
 							print('\nEpoch %05d: %s improved from %0.5f to %0.5f,'
 								  ' saving model to %s'

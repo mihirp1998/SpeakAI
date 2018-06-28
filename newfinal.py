@@ -166,9 +166,27 @@ def dense():
 
 
 def model_train(x_train,y_train,x_test, y_test, model):
+<<<<<<< HEAD
 	checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=500, monitor='val_acc')
 	callbacks_list = [checkpoint]
 	# model.fit(x_train,y_train,epochs=10000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+=======
+<<<<<<< HEAD
+	checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=500, monitor='val_acc')
+	callbacks_list = [checkpoint]
+	# model.fit(x_train,y_train,epochs=10000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+=======
+<<<<<<< HEAD
+	checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=500, monitor='val_acc')
+	callbacks_list = [checkpoint]
+	# model.fit(x_train,y_train,epochs=10000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+=======
+	checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=2000, monitor='val_acc')
+	callbacks_list = [checkpoint]
+	model.fit(x_train,y_train,epochs=10000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+>>>>>>> 1b73396e1da9633474c160e0f62c4cd6d57e7f2e
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
+>>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 	savedata(model)
 
 
@@ -188,7 +206,19 @@ def model_test(x_test, y_test, x_train, y_train):
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
+<<<<<<< HEAD
 	loaded_model.load_weights("/data/Mihir/SpeakAI_data/models/ff-500-287.14.hdf5")
+=======
+<<<<<<< HEAD
+	loaded_model.load_weights("/data/Mihir/SpeakAI_data/models/ff-500-287.14.hdf5")
+=======
+<<<<<<< HEAD
+	loaded_model.load_weights("/data/Mihir/SpeakAI_data/models/ff-500-287.14.hdf5")
+=======
+	loaded_model.load_weights("/data/Mihir/SpeakAI_data/models/ff-100-4.86.hdf5")
+>>>>>>> 1b73396e1da9633474c160e0f62c4cd6d57e7f2e
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
+>>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 	print("Loaded model from disk")
 	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
  	loaded_model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])
@@ -206,7 +236,19 @@ def savedata(model):
 	model_json = model.to_json()
 	with open("/data/Mihir/SpeakAI_data/ffModel22nd.json", "w") as json_file:
     		json_file.write(model_json)
+<<<<<<< HEAD
     	# model.save_weights("/data/Mihir/SpeakAI_data/ffModel22nd.h5")
+=======
+<<<<<<< HEAD
+    	# model.save_weights("/data/Mihir/SpeakAI_data/ffModel22nd.h5")
+=======
+<<<<<<< HEAD
+    	# model.save_weights("/data/Mihir/SpeakAI_data/ffModel22nd.h5")
+=======
+    	model.save_weights("/data/Mihir/SpeakAI_data/ffModel22nd.h5")
+>>>>>>> 1b73396e1da9633474c160e0f62c4cd6d57e7f2e
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
+>>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
     	print("Save Model To Disk")
 
 
@@ -267,8 +309,19 @@ def dataPreload():
 	svm_x_test = pickle.load(open('/data/Mihir/SpeakAI_data/x_test.p','rb'))
 	svm_y_test = pickle.load(open('/data/Mihir/SpeakAI_data/y_test.p','rb'))
 	return svm_x_train,svm_y_train,svm_y_test,svm_y_test
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> db59719d3b7d9d0a822b133c0cab79e49eda9524
+>>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 # dataPreload()
 preload()
+=======
+dataPreload()
+# preload()
+>>>>>>> 1b73396e1da9633474c160e0f62c4cd6d57e7f2e
 
 def main(testbool):
 	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
