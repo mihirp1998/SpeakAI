@@ -5,7 +5,7 @@
 	src: url('codropsicons.eot');
 	src: url('codropsicons.eot?#iefix') format('embedded-opentype'), url('codropsicons.woff') format('woff'), url('codropsicons.ttf') format('truetype'), url('codropsicons.svg#codropsicons') format('svg');
 }
-img{
+.logo{
       display: block;
     margin-left: auto;
     margin-right: auto;
@@ -13,8 +13,14 @@ img{
 	height:30%;
 	width:30%;
 	margin-top:40px;
-
 }
+
+
+
+
+
+
+
 *,
 *:after,
 *:before {

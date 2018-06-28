@@ -28,6 +28,9 @@ import pickle
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from keras.callbacks import ModelCheckpoint
+from keras import regularizers
+from sklearn.utils import shuffle
+
 
 def model():
 	tf.reset_default_graph()
@@ -64,27 +67,11 @@ def model():
 	model.compile(loss='categorical_crossentropy',
 				  optimizer=opt,
 				  metrics=['accuracy'])
-	model.load_weights('../data/Mihir/SpeakAI_data/my_model_weights.h5')
+	model.load_weights('/data/Mihir/SpeakAI_data/my_model_weights.h5')
 
 	return model
 # rootdir = path to training data dir
-def feedforwardModel():
-	model = Sequential()
-	model.add(Dense(30,input_dim=784))
-	model.add(Activation('relu'))
-	model.add(Dense(30))
-	model.add(Activation('relu'))
-	model.add(Dense(20))
-	model.add(Activation('relu'))
-	model.add(Dense(25))
-	model.add(Activation('relu'))
-	model.add(Dense(10))
-	model.add(Activation('softmax'))
-	model.summary()
-	keras.layers.Dropout(10)
-	model.compile(optimizer='rmsprop',
-	            loss='binary_crossentropy',
-	            metrics=['accuracy'])
+
 
 def training_data(rootdir):
 	spectograms = []
@@ -164,13 +151,10 @@ def fit_data(y_train,y_test,x_train, model):
 def dense():
 	model = Sequential()
 	# x_train=x_train.reshape((1000,784))
-	model.add(Dense(30,input_dim=399168,activation='relu',  ))
-	model.add(Dropout(0.25))
-	model.add(Dense(20,activation='elu'))
-	model.add(Dense(15))
-	model.add(Activation('elu'))
-	model.add(Dropout(0.3))
-	model.add(Dense(10))
+	model.add(Dense(100,input_dim=399168,activation='elu' ,kernel_regularizer=regularizers.l2(0.01),
+                activity_regularizer=regularizers.l1(0.01)))
+	model.add(Dropout(0.2))
+	model.add(Dense(50,activation="tanh"))
 	model.add(Dense(7))
 	model.add(Activation('softmax'))
 	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
@@ -182,14 +166,13 @@ def dense():
 
 
 def model_train(x_train,y_train,x_test, y_test, model):
-	checkpoint = ModelCheckpoint("../data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=30, monitor='val_acc')
+	checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-{epoch:02d}-{val_loss:.2f}.hdf5",  mode='auto', period=500, monitor='val_acc')
 	callbacks_list = [checkpoint]
-	model.fit(x_train,y_train,epochs=1000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
+	# model.fit(x_train,y_train,epochs=10000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
 	savedata(model)
 
 
 def extractData(svm_x_train,svm_y_train):
-	global clf
 	svm_x_train = np.array(svm_x_train)
 	# clf = svm.SVC(kernel='rbf', class_weight='balanced',probability=True)
 	dataset_size = len(svm_x_train)
@@ -200,12 +183,12 @@ def extractData(svm_x_train,svm_y_train):
 
 
 def model_test(x_test, y_test, x_train, y_train):
-	json_file = open('../data/Mihir/SpeakAI_data/ffModel22nd.json', 'r')
+	json_file = open('/data/Mihir/SpeakAI_data/ffModel22nd.json', 'r')
 	loaded_model_json = json_file.read()
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
-	loaded_model.load_weights("../data/Mihir/SpeakAI_data/models/ff-100-4.86.hdf5")
+	loaded_model.load_weights("/data/Mihir/SpeakAI_data/models/ff-500-287.14.hdf5")
 	print("Loaded model from disk")
 	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
  	loaded_model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])
@@ -221,14 +204,14 @@ def model_test(x_test, y_test, x_train, y_train):
 
 def savedata(model): 
 	model_json = model.to_json()
-	with open("../data/Mihir/SpeakAI_data/ffModel22nd.json", "w") as json_file:
+	with open("/data/Mihir/SpeakAI_data/ffModel22nd.json", "w") as json_file:
     		json_file.write(model_json)
-    	model.save_weights("../data/Mihir/SpeakAI_data/ffModel22nd.h5")
+    	# model.save_weights("/data/Mihir/SpeakAI_data/ffModel22nd.h5")
     	print("Save Model To Disk")
 
 
 def preload():
-	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,clf
+	global svm_x_train,svm_y_train,svm_x_test,svm_y_test
 	mod = model()
 	rootdir = 'data/train/'
 	traindata = training_data(rootdir)
@@ -271,7 +254,20 @@ def preload():
 	# print(scaler.mean_,scaler.var_)
 	svm_x_train = scaler.transform(svm_x_train)
 	svm_x_test = scaler.transform(svm_x_test)
+	svm_x_train,svm_y_train = shuffle(svm_x_train,svm_y_train)
+	pickle.dump(svm_x_train,open('/data/Mihir/SpeakAI_data/x_train.p','wb'))
+	pickle.dump(svm_y_train,open('/data/Mihir/SpeakAI_data/y_train.p','wb'))
+	pickle.dump(svm_x_test,open('/data/Mihir/SpeakAI_data/x_test.p','wb'))
+	pickle.dump(svm_y_test,open('/data/Mihir/SpeakAI_data/y_test.p','wb'))
 
+def dataPreload():
+	global svm_x_train,svm_y_train,svm_x_test,svm_y_test
+	svm_x_train = pickle.load(open('/data/Mihir/SpeakAI_data/x_train.p','rb'))
+	svm_y_train = pickle.load(open('/data/Mihir/SpeakAI_data/y_train.p','rb'))
+	svm_x_test = pickle.load(open('/data/Mihir/SpeakAI_data/x_test.p','rb'))
+	svm_y_test = pickle.load(open('/data/Mihir/SpeakAI_data/y_test.p','rb'))
+	return svm_x_train,svm_y_train,svm_y_test,svm_y_test
+# dataPreload()
 preload()
 
 def main(testbool):

@@ -100,7 +100,7 @@ def model():
 	model.compile(loss='categorical_crossentropy',
 				  optimizer=opt,
 				  metrics=['accuracy'])
-	model.load_weights('my_model_weights.h5')
+	model.load_weights('../SpeakAI_data/my_model_weights.h5')
 	
 	return model
 
@@ -152,10 +152,50 @@ def wav2png():
 
 
 
-clf = pickle.load(open('clf.p','rb'))
+# clf = pickle.load(open('clf.p','rb'))
 model = model()
 model2 = Model(inputs=model.input, outputs=model.get_layer('flatten_1').output)
 graph = tf.get_default_graph()
+
+@app.route('/uploaderfor2', methods = [ 'POST'])
+def upload_filefor2():
+	print('helLO',request.files)
+
+	f = request.files['wavFile']
+	print('SA',f.filename)
+	f.save('./webData/wavs/'+ secure_filename('input.wav'))
+	# return 'file uploaded successfully'
+	return 'done'
+
+	# global headVal,bodyVal,m
+	# global check
+	return 'done'
+	# if request.method == 'POST':
+	# 	try:
+	# 		print('get printed')
+	# 		f = request.files['file']
+	# 		print('SA',f.filename)
+	# 		f.save('./webData/wavs/'+ secure_filename('input.wav'))
+	# 		# return 'file uploaded successfully'
+	# 		return render_template('index.html',article='<p>File Uploaded</p>')
+	# 	except Exception:
+	# 		check = False
+	# 		return render_template('index.html',article='<p>Reupload! File Not Uploaded</p>')
+	# else:
+	# 	return render_template('result.html',head=headVal,body = bodyVal,final = m)	
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/uploader', methods = [ 'POST'])
@@ -226,8 +266,47 @@ def nocache(view):
 
 
 
+
+
+
+
+
+@app.route('/mic128.png')
+def sendMic():
+	return send_from_directory('./static', 'mic128.png')
+
+@app.route('/save.svg')
+def sendSave():
+	return send_from_directory('./static', 'save.svg')
+
+
+@app.route('/audiodisplay.js')
+def sendAudio():
+	return render_template('audiodisplay.js')
+
+@app.route('/recorder.js')
+def sendRecorder():
+	return render_template('recorder.js')
+
+@app.route('/main.js')
+def sendMain():
+	return render_template('main.js')
+
+@app.route('/recorderWorker.js')
+def sendRecoderwork():
+	return render_template('recorderWorker.js')
+
+	
+@app.route('/WebAudioScheduler.js')
+def sendWebAudioScheduler():
+	return render_template('WebAudioScheduler.js')
+
+
+
+
+
 @app.route('/component.css')
-@nocache
+# @nocache
 def sendcssa3():
 	return send_from_directory('./static', 'component.css')
 

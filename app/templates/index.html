@@ -18,6 +18,100 @@
 		<link rel="stylesheet" type="text/css" href="codropsicons.ttf" />
 		<link rel="stylesheet" type="text/css" href="codropsicons.woff" />
 
+
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Audio Recorder</title>
+
+
+	<style>
+/*	html { overflow: hidden; }*/
+
+p {
+    display: block;
+    -webkit-margin-before: 0em;
+    -webkit-margin-after: 0em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+	body { 
+/*		font: 14pt Arial, sans-serif; 
+		background: lightgrey;
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		width: 100%;
+		margin: 0 0;*/
+	}
+	canvas { 
+		display: inline-block; 
+		background: #202020; 
+		width: 95%;
+		height: 15%;
+		margin-left: 10%;
+/*		margin-right: 50%;*/
+		box-shadow: 0px 0px 0px blue;
+	}
+	#controls {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-around;
+		height: 20%;
+		width: 100%;
+	}
+	#record { height: 15vh; }
+	#record.recording { 
+		background: red;
+		background: -webkit-radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%); 
+		background: -moz-radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%); 
+		background: radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%); 
+	}
+	#save, #save img { height: 10vh; }
+	#save { opacity: 0.25;}
+	#save[download] { opacity: 1;}
+	#viz {
+		height: 80%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
+		align-items: center;
+	}
+	@media (orientation: landscape) {
+		body { flex-direction: row;}
+		#controls { flex-direction: column; height: 100%; width: 10%;}
+		#viz { height: 100%; width: 90%;}
+	}
+
+	</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		<!--[if IE]>
   		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
@@ -32,10 +126,34 @@
 							<!-- images -->
 				</div>
 <!-- 				<h1>SpeakAI</h1> -->
-				<img src="logo.jpg" alt="Logo" >
+				<img src="logo.jpg" alt="Logo" class= "logo" >
 				<p>Speaker Recognition:<strong><a href="#" class="review">   Only For Review Purpose</a></strong></p>
 			</header>
-					
+	
+	<div id="controls">
+		<img id="record" src="mic128.png" onclick="toggleRecording(this);" style="width: 50%;  height:50%; margin-left:1100px;">
+		
+	</div>
+
+	<div id="viz">
+		<canvas id="analyser" width="1024" height="300" style="margin-top:50px;"></canvas>
+		<canvas id="wavedisplay" width="1024" height="300" style="margin-top:50px;"></canvas>
+	</div>
+
+<a id="save" href="#" style= "margin-left:550px;margin-top:50px;margin-bottom:50px;"><img src="save.svg"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 			<div class="content">
 
@@ -79,6 +197,9 @@
 			
 <script src="jquery-v1.min.js"></script>
 		<script src="custom-file-input.js"></script>
+			<script src="audiodisplay.js"></script>
+	<script src="recorder.js"></script>
+	<script src="main.js"></script>
 		<!-- // If you'd like to use jQuery, check out js/jquery.custom-file-input.js
 		<script src="js/jquery-v1.min.js"></script>
 		<script src="js/jquery.custom-file-input.js"></script>
