@@ -32,11 +32,7 @@ from keras import regularizers
 from sklearn.utils import shuffle
 import modelcheck
 # print('afsdfa')
-<<<<<<< HEAD
-filePath = '..'
-=======
 filePath = '/data/Mihir'
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 def model():
 	global filePath
 	tf.reset_default_graph()
@@ -140,14 +136,9 @@ def fit_data(y_train,y_test,x_train, model):
 	dummy_y = np_utils.to_categorical(encoded_Y)
 	svm_x_train = []
 	svm_y_train = []
-<<<<<<< HEAD
-	# encoder.fit(y_temp2_train)
-	encoded_Y = encoder.transform( y_test)
-=======
 	y_temp2_train = y_test
 	encoder.fit(y_temp2_train)
 	encoded_Y = encoder.transform(y_temp2_train)
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 	print(encoded_Y)
 	dummy2_y = np_utils.to_categorical(encoded_Y)
 	model2 = Model(inputs=model.input, outputs=model.get_layer('flatten_1').output)
@@ -167,19 +158,11 @@ def fit_data(y_train,y_test,x_train, model):
 def dense():
 	model = Sequential()
 	# x_train=x_train.reshape((1000,784))
-<<<<<<< HEAD
-	model.add(Dense(100,input_dim=399168,activation='elu' ,kernel_regularizer=regularizers.l2(0.0001),
-                activity_regularizer=regularizers.l1(0.0001)))
-	model.add(Dropout(0.3))
-	model.add(Dense(50,activation="elu"))
-	model.add(Dropout(0.15))
-=======
-	model.add(Dense(100,input_dim=399168,activation='elu' ,kernel_regularizer=regularizers.l2(0.000001),
+	model.add(Dense(100,input_dim=399168,activation='elu' ,kernel_regularizer=regularizers.l2(0.0000001),
                 activity_regularizer=regularizers.l1(0.0000001)))
-	model.add(Dropout(0.4))
+	model.add(Dropout(0.1))
 	model.add(Dense(50,activation="elu"))
-	# model.add(Dropout(0.2))
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
+	# model.add(Dropout(0.15))
 	model.add(Dense(4))
 	model.add(Activation('softmax'))
 	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
@@ -192,20 +175,12 @@ def dense():
 
 def model_train(x_train,y_train,x_test, y_test, model):
 	global filePath
-<<<<<<< HEAD
-	model.load_weights(filePath + "/SpeakAI_data/models/ffnew.hdf5")
-=======
-	# model.load_weights(filePath + "/SpeakAI_data/models/ffnew.hdf5")
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
-	histories = modelcheck.Histories("/data/Mihir/SpeakAI_data/models/ff-bestmodel.hdf5",verbose = 1,  mode='max', monitor='val_acc', save_best_only=True,save_weights_only=True)
+	model.load_weights(filePath + "/SpeakAI_data/models/ff-bestmodel12.hdf5")
+	histories = modelcheck.Histories("/data/Mihir/SpeakAI_data/models/ff-bestmodel123.hdf5",verbose = 1,  mode='max', monitor='val_acc', save_best_only=True,save_weights_only=True)
 	# checkpoint = ModelCheckpoint("/data/Mihir/SpeakAI_data/models/ff-bestmodel.hdf5",  mode='max', monitor='val_acc', save_best_only=True,save_weights_only=True)
 	# print(checkpoint.best)
 	callbacks_list = [histories]
-<<<<<<< HEAD
 	model.fit(x_train,y_train,epochs=10000000,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
-=======
-	model.fit(x_train,y_train,epochs=1,verbose=1, callbacks=callbacks_list,validation_data=(x_test, y_test))
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 	savedata(model)
 
 
@@ -226,7 +201,7 @@ def model_test(x_test, y_test, x_train, y_train):
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
-	loaded_model.load_weights(filePath + "/SpeakAI_data/ff-100-4.86.hdf5")
+	loaded_model.load_weights(filePath + "/SpeakAI_data/models/ff-bestmodel12.hdf5")
 	print("Loaded model from disk")
 	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
  	loaded_model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])
@@ -249,10 +224,6 @@ def savedata(model):
     	print("Save Model To Disk")
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 def preload():
 	global svm_x_train,svm_y_train,svm_x_test,svm_y_test,filePath
 	mod = model()
@@ -262,18 +233,10 @@ def preload():
 	print(traindata)
 	x_train = traindata[0]
 	y_train = traindata[1]
-<<<<<<< HEAD
-	rootdir1 = filePath + '/voicesmessi/'
-	testdata = test_data(rootdir1)
-	x_test = testdata[0]
-	y_test = testdata[1]
-	# return x_test,y_test
-=======
 	rootdir1 = filePath + '/SpeakAI_data/data/test/'
 	testdata = test_data(rootdir1)
 	x_test = testdata[0]
 	y_test = testdata[1]
->>>>>>> d8b5f6b1a7026caa18e5a01ae12d89eb99b6ef15
 	svm_data = fit_data(y_train,y_test,x_train,mod)
 	svm_x_train = svm_data[0]
 	svm_y_train = svm_data[1]

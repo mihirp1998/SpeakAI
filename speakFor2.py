@@ -32,6 +32,8 @@ from keras import regularizers
 from sklearn.utils import shuffle
 import modelcheck2
 filePath = '/data/Mihir'
+
+
 def model():
 	tf.reset_default_graph()
 	keras.backend.clear_session()
@@ -122,6 +124,8 @@ def test_data(rootdir1):
 	temp.append(spectograms_ids)
 	return temp
 	print(y_test)
+
+	
 def fit_data(y_train,y_test,x_train, model):
 	encoder = LabelEncoder()
 	y_temp_train = y_train
@@ -194,7 +198,7 @@ def model_test(x_test, y_test, x_train, y_train):
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
-	loaded_model.load_weights(filePath + "/SpeakAI_data2/models/ahaan3.hdf5")
+	loaded_model.load_weights(filePath + "/SpeakAI_data2/models/ahaan2.hdf5")
 	print("Loaded model from disk")
 	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
  	loaded_model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])

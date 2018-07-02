@@ -36,12 +36,14 @@ from os import listdir
 from os.path import isfile, join
 import glob
 import os
-import librosa
+
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from matplotlib.pyplot import specgram
 import subprocess
+from keras.models import model_from_json
+filePath = ".."
 
 def test_data(rootdir1):
 	spectograms = []
@@ -100,35 +102,33 @@ def model():
 	model.compile(loss='categorical_crossentropy',
 				  optimizer=opt,
 				  metrics=['accuracy'])
-	model.load_weights('../SpeakAI_data/my_model_weights.h5')
+	model.load_weights(filePath + '/SpeakAI_data/my_model_weights.h5')
 	
 	return model
 
 
+def loadOneShotModel():
+	global filePath,loaded_model
 
-def mp3ToWav():
-	AudioSegment.converter = r"ffmpeg"#r"/usr/local/lib/python2.7/dist-packages/tensorflow/contrib/ffmpeg"
-#change the range(10)
-	for i in range(10):
-		files = os.listdir(r'''./data/train/audio{}'''.format(i))
-		
-		if not os.path.exists(r'''./data/train/wav{}'''.format(i)):
-			os.makedirs(r'''/./data/train/wav{}'''.format(i))
-		
-		count = 1
-		limit = 0
-		for f in files:
-			if(limit == 720): break
-			sound = AudioSegment.from_mp3(r'''./data/train/audio{}/{}'''.format(i, f))
-			out_f = sound.export(r'''./data/train/wav{}/{}.wav'''.format(i, count), format="wav")
-			out_f.close()
-			count = count + 1
-			limit = limit + 1
+	json_file = open(filePath + '/SpeakAI_data2/speaker2.json', 'r')
+	loaded_model_json = json_file.read()
+	json_file.close()
+	loaded_model = model_from_json(loaded_model_json)
+	# load weights into new model
+	loaded_model.load_weights(filePath + "/SpeakAI_data2/models/ahaan2.hdf5")
+	print("Loaded model from disk")
+	opt = keras.optimizers.Adam(lr=0.0001, decay=1e-6)
+ 	loaded_model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["categorical_accuracy"])
+ 	return loaded_model
+
+
+
 
 def trimWav():
 #change the range(10)
 	for i in range(10):
 		in_path = os.listdir('./data/train/wav{}'.format(i))
+
 		if not os.path.exists(r'''./data/train/wavs{}'''.format(i)):
 			os.makedirs(r'''./data/train/wavs{}'''.format(i))    
 		for z in in_path:
@@ -142,10 +142,10 @@ def wav2png():
 	
 	if not os.path.exists(r'''./webData/speaker'''):
 		os.makedirs(r'''./webData/speaker''')
-	
+
 	count = 1
 	for f in files:
-		cmdstring = 'sox "{}" -n spectrogram -r -o "{}"'.format(r'''./webData/wavs/{}'''.format( f), r'''./webData/speaker/{}.png'''.format( count))
+		cmdstring = 'sox "{}" -n spectrogram -x 800 -y 513 -r -o "{}"'.format(r'''./webData/wavs/{}'''.format( f), r'''./webData/speaker/{}.png'''.format( count))
 		subprocess.call(cmdstring, shell=True)
 		count = count + 1
 
@@ -156,6 +156,54 @@ def wav2png():
 model = model()
 model2 = Model(inputs=model.input, outputs=model.get_layer('flatten_1').output)
 graph = tf.get_default_graph()
+loaded_model = loadOneShotModel()
+graph2 = tf.get_default_graph()
+
+@app.route('/open', methods = [ 'POST'])
+def sendOutput():
+	global model2,x_test,loaded_model
+	print('this is the loaded model',loaded_model)
+	global graph,graph2
+	wav2png()
+	rootdir1 = './webData/speaker'
+	testdata = test_data(rootdir1)
+	print(testdata)
+	x_test = testdata[0]
+	svm_x_test = []
+
+	# optimize better
+
+	for i in range(len(x_test)):
+		x_1 = np.expand_dims(x_test[i], axis=0)
+		#x_1 = preprocess_input(x_1)
+		with graph.as_default():
+			flatten_2_features = model2.predict(x_1)
+		svm_x_test.append(flatten_2_features)
+
+
+	svm_x_test = np.array(svm_x_test)
+	dataset_size = len(svm_x_test)
+	svm_x_test = np.array(svm_x_test).reshape(dataset_size,-1)
+	scaler  = pickle.load(open(filePath + '/SpeakAI_data2/scaler2.p','rb'))
+
+	svm_x_test = scaler.transform(svm_x_test)
+
+	with graph2.as_default():
+		predictedVal = loaded_model.predict(svm_x_test)
+	print(predictedVal)
+
+	return render_template('result.html')
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/uploaderfor2', methods = [ 'POST'])
 def upload_filefor2():
@@ -216,39 +264,6 @@ def upload_file():
 			return render_template('index.html',article='<p>Reupload! File Not Uploaded</p>')
 	else:
 		return render_template('result.html',head=headVal,body = bodyVal,final = m)	
-
-
-@app.route('/open', methods = [ 'POST'])
-def sendOutput():
-	global clf,model2,x_test
-	global graph
-	wav2png()
-	rootdir1 = './webData/speaker'
-	testdata = test_data(rootdir1)
-	print(testdata)
-	x_test = testdata[0]
-	svm_x_test = []
-
-	# optimize better
-
-	for i in range(len(x_test)):
-		x_1 = np.expand_dims(x_test[i], axis=0)
-		#x_1 = preprocess_input(x_1)
-		with graph.as_default():
-			flatten_2_features = model2.predict(x_1)
-		svm_x_test.append(flatten_2_features)
-
-
-	svm_x_test = np.array(svm_x_test)
-	dataset_size = len(svm_x_test)
-	svm_x_test = np.array(svm_x_test).reshape(dataset_size,-1)
-	predicted  = clf.predict(svm_x_test)
-	print(predicted,clf.predict_proba(svm_x_test))
-
-
-	return render_template('result.html')
-
-
 
 
 

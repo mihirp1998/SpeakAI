@@ -12,25 +12,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-var audioContext = new AudioContext();
-var audioInput = null,
-    realAudioInput = null,
-    inputPoint = null,
-    audioRecorder = null;
-var rafID = null;
-var analyserContext = null;
-var canvasWidth, canvasHeight;
-var recIndex = 0;
-var data = null
-/* TODO:
-
-- offer mono option
-- "Monitor input" switch
-*/
-
 $("#save").click(function(){
   console.log("happening");
   var myFormData = new FormData();
@@ -44,14 +25,29 @@ $.ajax({
   dataType : 'json',
   data: myFormData
 });
-
-
-
 });
+var data = null
+
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+var audioContext = new AudioContext();
+var audioInput = null,
+    realAudioInput = null,
+    inputPoint = null,
+    audioRecorder = null;
+var rafID = null;
+var analyserContext = null;
+var canvasWidth, canvasHeight;
+var recIndex = 0;
+
+/* TODO:
+
+- offer mono option
+- "Monitor input" switch
+*/
 
 function saveAudio() {
     audioRecorder.exportWAV( doneEncoding );
-    console.log('saving noww');
     // could get mono instead by saying
     // audioRecorder.exportMonoWAV( doneEncoding );
 }
@@ -63,18 +59,16 @@ function gotBuffers( buffers ) {
 
     // the ONLY time gotBuffers is called is right after a new recording is completed - 
     // so here's where we should set up the download.
-    audioRecorder.exportWAV( doneEncoding );
+    audioRecorder.exportMonoWAV( doneEncoding );
 }
 
 function doneEncoding( blob ) {
-    Recorder.setupDownload( blob, "Recording" + ((recIndex<10)?"0":"") + recIndex + ".wav" );
+    Recorder.setupDownload( blob, "myRecording" + ((recIndex<10)?"0":"") + recIndex + ".wav" );
     data = blob
-    console.log('recorded')
     recIndex++;
 }
 
 function toggleRecording( e ) {
-    console.log(e.classList)
     if (e.classList.contains("recording")) {
         // stop recording
         audioRecorder.stop();

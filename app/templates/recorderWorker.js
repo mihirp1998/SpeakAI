@@ -45,10 +45,6 @@ this.onmessage = function(e){
   }
 };
 
-
-
-
-
 function init(config){
   sampleRate = config.sampleRate;
 }
@@ -60,8 +56,6 @@ function record(inputBuffer){
 }
 
 function exportWAV(type){
-         console.log('saving exp pre');
-
   var bufferL = mergeBuffers(recBuffersL, recLength);
   var bufferR = mergeBuffers(recBuffersR, recLength);
   var interleaved = interleave(bufferL, bufferR);

@@ -78,7 +78,6 @@ DEALINGS IN THE SOFTWARE.
     }
 
     this.exportWAV = function(cb, type){
-       console.log('saving export');
       currCallback = cb || config.callback;
       type = type || config.type || 'audio/wav';
       if (!currCallback) throw new Error('Callback not set');
@@ -108,8 +107,6 @@ DEALINGS IN THE SOFTWARE.
   };
 
   Recorder.setupDownload = function(blob, filename){
-
-    console.log(blob)
     var url = (window.URL || window.webkitURL).createObjectURL(blob);
     var link = document.getElementById("save");
     link.href = url;
