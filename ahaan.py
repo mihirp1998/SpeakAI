@@ -1,3 +1,4 @@
+import numpy
 import keras
 import keras as K
 from keras.layers import Conv2D, MaxPooling2D
